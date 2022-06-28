@@ -24,8 +24,8 @@ router.post('/signup', (req, res) => {
     //Adding the new user to the DB(Database)
     knex('users')
         .insert(newUser)
-        .then(() => {
-                res.status(201).send({ success: true, mesasge: "Account Created"});
+        .then((user) => {
+                res.status(201).send({ success: true, mesasge: "Account Created", userId: newUser.user_id});
         });
 });
 
@@ -51,7 +51,13 @@ router.post('/login', (req, res) => {
                 { expiresIn: "3h" }
             )
 
-            res.json({ token })
+            res.json({ 
+                token: token, 
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                user_id: user.user_id
+            })
         })
         // .catch(() => {
         //     res.status(400).send("Password/Email are invalid")
