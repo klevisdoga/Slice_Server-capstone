@@ -3,8 +3,8 @@ const connections = {
     client: 'mysql',
     connection: {
       host: '127.0.0.1',
-      user: process.env.SERVER_USERNAME,
-      password: process.env.SERVER_PASSWORD,
+      user: 'root',
+      password: 'rootroot',
       database: 'Slice_DB',
       charset: 'utf8'
     },

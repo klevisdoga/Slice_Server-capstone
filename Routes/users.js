@@ -17,7 +17,9 @@ router.post('/signup', (req, res) => {
     const newUser = {
         user_id: uuid(),
         ...req.body,
-        password: hashedPassword
+        password: hashedPassword,
+        subscriptions: '',
+        connected: 'false'
     }
 
     // console.log(newUser)

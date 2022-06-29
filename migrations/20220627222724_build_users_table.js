@@ -5,6 +5,8 @@ exports.up = function(knex) {
         table.string('lastName').notNullable();
         table.string('email').notNullable().unique();
         table.string('password').notNullable();
+        table.text('subscriptions').notNullable();
+        table.string('connected').notNullable();
     });
 };
 
