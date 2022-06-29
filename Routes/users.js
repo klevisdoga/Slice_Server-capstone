@@ -66,7 +66,7 @@ router.get('/account', authenticate, (req, res) => {
     knex('users')
     .where({email: req.user.email})
     .then(user => {
-        delete user.password;
+        delete user[0].password,
         res.json(user)
     })
 })
