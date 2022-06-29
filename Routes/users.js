@@ -59,10 +59,16 @@ router.post('/login', (req, res) => {
                 user_id: user.user_id
             })
         })
-        // .catch(() => {
-        //     res.status(400).send("Password/Email are invalid")
-        // })
+})
 
+router.get('/account', authenticate, (req, res) => {
+    
+    knex('users')
+    .where({email: req.user.email})
+    .then(user => {
+        delete user.password;
+        res.json(user)
+    })
 })
 
 
