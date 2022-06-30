@@ -68,7 +68,7 @@ router.post('/transactions/recurring', (req, resolve) => {
     })
     .then(res => {
 
-        // filtering data to only return name, amount, and date of the subscription
+        // filtering data to only return name, amount, date, and next date(next month) of the subscription
         const filteredData = res.data.transactions.map(info=> {
 
             const date = new Date(info.date.split('-'))
