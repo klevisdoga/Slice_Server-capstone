@@ -53,6 +53,7 @@ router.post('/login', (req, res) => {
                 return res.status(400).send("Invalid Password/Email")
             }
 
+            // creating a token and sending it back to the client side
             const token = jwt.sign(
                 { id: user.id, email: user.email },
                 process.env.JWT_KEY,
@@ -69,6 +70,7 @@ router.post('/login', (req, res) => {
         })
 })
 
+// finding the current user via unique email and retrieving their information
 router.get('/account', authenticate, (req, res) => {
 
     knex('users')
@@ -79,26 +81,45 @@ router.get('/account', authenticate, (req, res) => {
         })
 });
 
-router.post('/subscription/add', (req, res) => {
-    const {user_id, subscriptions} = req.body
+//updating the users personal information (first name, last name and/or email)
+router.put('/user/update', (req, res) => {
+    const { email, firstName, lastName, user_id } = req.body
 
     knex('users')
-        .where({user_id: user_id})
-        .update({subscriptions: JSON.stringify(subscriptions)})
+        .where({ user_id: user_id })
+        .update({ email: email, firstName: firstName, lastName: lastName })
         .then(user => {
-            res.status(201).json({Success: true, Message: 'Subscription Added'})
+            res.status(201).send({ Success: true, Message: "User information updated" })
         })
+
 })
 
-router.delete('/subscription/delete', (req, res) => {
-    const {subscriptions, user_id} = req.body
+
+// SUBSCRIPTIONS
+
+//with the data being sent from the client side, we are looking for the user that matches the data, and updating their list of subscriptions
+
+// adding a new subscription
+router.post('/subscription/add', (req, res) => {
+    const { user_id, subscriptions } = req.body
 
     knex('users')
-    .where({user_id: user_id})
-    .update({subscriptions: JSON.stringify(subscriptions)})
-    .then(user => {
-        res.status(201).json({Success: true, Message: 'Subscription Deleted'})
-    })
+        .where({ user_id: user_id })
+        .update({ subscriptions: JSON.stringify(subscriptions) })
+        .then(user => {
+            res.status(201).json({ Success: true, Message: 'Subscription Added' })
+        })
+})
+//deleting an exsisting subscription
+router.delete('/subscription/delete', (req, res) => {
+    const { subscriptions, user_id } = req.body
+
+    knex('users')
+        .where({ user_id: user_id })
+        .update({ subscriptions: JSON.stringify(subscriptions) })
+        .then(user => {
+            res.status(201).json({ Success: true, Message: 'Subscription Deleted' })
+        })
 })
 
 
