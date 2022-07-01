@@ -11,9 +11,9 @@ router.get('/create_link_token', (req, res) => {
     axios.post(`${process.env.CLIENT_URL}/link/token/create`, {
         client_id: process.env.CLIENT_ID,
         secret: process.env.CLIENT_SECRET,
-        client_name: 'Stash Test App',
-        language: 'en',
-        country_codes: ['US', 'CA'],
+        client_name: "Stash Test App",
+        language: "en",
+        country_codes: ["US", "CA"],
         user: {
             client_user_id: uuid()
         },

@@ -27,7 +27,13 @@ router.post('/signup', (req, res) => {
     knex('users')
         .insert(newUser)
         .then((user) => {
-                res.status(201).send({ success: true, mesasge: "Account Created", userId: newUser.user_id});
+
+            const token = jwt.sign(
+                { id: newUser.user_id, email: newUser.email },
+                process.env.JWT_KEY,
+                { expiresIn: "3h" }
+            )
+            res.status(201).send({ success: true, mesasge: "Account Created", userId: newUser.user_id, token: token });
         });
 });
 
@@ -53,8 +59,8 @@ router.post('/login', (req, res) => {
                 { expiresIn: "3h" }
             )
 
-            res.json({ 
-                token: token, 
+            res.json({
+                token: token,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
@@ -64,14 +70,37 @@ router.post('/login', (req, res) => {
 })
 
 router.get('/account', authenticate, (req, res) => {
-    
+
     knex('users')
-    .where({email: req.user.email})
+        .where({ email: req.user.email })
+        .then(user => {
+            delete user[0].password,
+                res.json(user)
+        })
+});
+
+router.post('/subscription/add', (req, res) => {
+    const {user_id, subscriptions} = req.body
+
+    knex('users')
+        .where({user_id: user_id})
+        .update({subscriptions: JSON.stringify(subscriptions)})
+        .then(user => {
+            res.status(201).json({Success: true, Message: 'Subscription Added'})
+        })
+})
+
+router.delete('/subscription/delete', (req, res) => {
+    const {subscriptions, user_id} = req.body
+
+    knex('users')
+    .where({user_id: user_id})
+    .update({subscriptions: JSON.stringify(subscriptions)})
     .then(user => {
-        delete user[0].password,
-        res.json(user)
+        res.status(201).json({Success: true, Message: 'Subscription Deleted'})
     })
 })
+
 
 
 module.exports = router
