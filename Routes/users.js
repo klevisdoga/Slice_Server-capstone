@@ -97,9 +97,7 @@ router.get('/account', authenticate, (req, res) => {
                     item.date = item.nextDate
                     item.nextDate = nextDate
 
-
-                    // console.log({id: item.id, name: item.name, date: item.date, nextDate: item.nextDate, amount: item.amount})
-
+                    // new object containing the updated subscriptions with their new dates 
                     const newObj = {
                         id: item.id,
                         name: item.name,
@@ -108,18 +106,21 @@ router.get('/account', authenticate, (req, res) => {
                         amount: item.amount
                     }
 
+                    // new array containing the orignal subscriptions and replacing any subscription with a past upcoming date, with the new object
                     const newSubsciptionArray = [...userSubscriptons.filter(obj => obj.name !== newObj.name), newObj]
 
-                    console.log(newSubsciptionArray)
-
+                    // inserting the new subscription array back into the DB
                     knex('users')
                         .where({ email: req.user.email })
                         .update({ subscriptions: JSON.stringify(newSubsciptionArray) })
+                        .then(() => {
+                            res.status(201)
+                        })
                 }
             })
 
             delete user[0].password,
-            res.json(user)
+                res.json(user)
 
         })
 });
