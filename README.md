@@ -1,6 +1,6 @@
 # Getting Started with Slice App Server
 
-To run the Slice App on your local host:
+To run the Slice App Server on your local host:
 
 1. Clone Repository in VScode or preffered code editor
 2. Open internal or external terminal
