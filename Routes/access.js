@@ -3,6 +3,7 @@ const router = express.Router();
 const knex = require('../knexConfig');
 const { v4: uuid } = require('uuid')
 const axios = require('axios')
+const plaid = require("plaid")
 
 require('dotenv').config()
 
@@ -17,7 +18,8 @@ router.get('/create_link_token', (req, res) => {
         user: {
             client_user_id: uuid()
         },
-        products: ["auth", "transactions"]
+        products: ["auth", "transactions"],
+        redirect_uri: "https://localhost:3000/account/:userId"
 
     }).then(resolve => {
         res.json(resolve.data.link_token)
@@ -59,43 +61,44 @@ router.post('/transactions/recurring', (req, resolve) => {
     const currentDate = year + '-' + month + '-' + day
     const prevDate = year + '-' + prevMonth  + '-' + day
 
-    axios.post(`${process.env.CLIENT_URL}/transactions/get`, {
+    axios.post(`${process.env.CLIENT_URL}/transactions/sync`, {
         client_id: process.env.CLIENT_ID,
         access_token: req.body.access_token,
         secret: process.env.CLIENT_SECRET,
-        start_date: prevDate,
-        end_date: currentDate
+        count: 100
     })
     .then(res => {
 
+        console.log(res.data)
+
         // filtering data to only return name, amount, date, and next date(next month) of the subscription
-        const filteredData = res.data.transactions.map(info=> {
+    //     const filteredData = res.data.added.map(info=> {
 
-            const date = new Date(info.date.split('-'))
-            const nextDay = String(date.getDate()).padStart(2, '0')
-            const nextMonth = String(date.getMonth() + 2).padStart(2, '0')
-            const year = String(date.getFullYear())
-            const nextDate = year + '-' + nextMonth + '-' + nextDay
+    //         const date = new Date(info.date.split('-'))
+    //         const nextDay = String(date.getDate()).padStart(2, '0')
+    //         const nextMonth = String(date.getMonth() + 2).padStart(2, '0')
+    //         const year = String(date.getFullYear())
+    //         const nextDate = year + '-' + nextMonth + '-' + nextDay
 
-            return {
-                id: uuid(),
-                name: info.name,
-                date: info.date,
-                nextDate: nextDate,
-                amount: info.amount,
-            }
-        })
+    //         return {
+    //             id: uuid(),
+    //             name: info.name,
+    //             date: info.date,
+    //             nextDate: nextDate,
+    //             amount: info.amount,
+    //         }
+    //     })
 
-        // adding filtered bank transactions to current user in DB
-        knex('users')
-        .where({user_id: user_id})
-        .update({subscriptions: JSON.stringify(filteredData), connected: 'true'})
-        .then(user => {
-            resolve.status(201).json({Success: true, Message: 'Data Recieved'})
-        })
-    })
-    .catch(err => {
-        console.log(err)
+    //     // adding filtered bank transactions to current user in DB
+    //     knex('users')
+    //     .where({user_id: user_id})
+    //     .update({subscriptions: JSON.stringify(filteredData), connected: 'true'})
+    //     .then(user => {
+    //         resolve.status(201).json({Success: true, Message: 'Data Recieved'})
+    //     })
+    // })
+    // .catch(err => {
+    //     console.log(err)
     })
 })
 
