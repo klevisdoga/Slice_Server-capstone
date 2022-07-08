@@ -8,7 +8,7 @@ const { Configuration, PlaidApi, PlaidEnvironments } = require('plaid');
 require('dotenv').config()
 
 const configuration = new Configuration({
-    basePath: PlaidEnvironments['development'],
+    basePath: PlaidEnvironments[process.env.PLAID_ENV],
     baseOptions: {
         headers: {
             'client_id': process.env.CLIENT_ID,
@@ -20,7 +20,7 @@ const configuration = new Configuration({
 const client = new PlaidApi(configuration)
 
 router.post('http://localhost:8888/plaid_webhook', (req, res) => {
-    console.log(req.body +  ' OR ' + req)
+    console.log(req.body + ' OR ' + req)
 })
 
 router.post('/create_link_token', async (req, res) => {
@@ -85,17 +85,28 @@ router.post('/transactions/recurring', async (req, res) => {
     const prevDate = year + '-' + prevMonth + '-' + day
 
     try {
-        const response = await client.transactionsSync({
+        const response = await client.transactionsGet({
             client_id: process.env.CLIENT_ID,
             access_token: req.body.access_token,
             secret: process.env.CLIENT_SECRET,
-            cursor: "",
-            count: 5
-            // start_date: prevDate,
-            // end_date: currentDate
+            // count: 5
+            start_date: prevDate,
+            end_date: currentDate
         })
 
-        console.log(response.data)
+        const categories = ['18061000', '17018000']
+
+        allSubscriptions = response.data.transactions
+
+        const filter = []
+
+        filter.push(allSubscriptions.filter(sub => sub.category_id === '18061000'))
+        filter.push(allSubscriptions.filter(sub => sub.category_id === '17018000'))
+        filter.push(allSubscriptions.filter(sub => sub.category_id === '18060000'))
+        filter.push(allSubscriptions.filter(sub => sub.category_id === '17001000'))
+
+        // console.log(filter)
+        console.log(filter)
 
     } catch (error) {
         console.log(error)
